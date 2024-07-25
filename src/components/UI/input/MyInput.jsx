@@ -3,9 +3,7 @@ import classes from './MyInput.module.css'
 
 const MyInput=React.forwardRef((props, ref)=> {
   return (
-    <input ref={ref} className={classes.myInput} type="text" {... props} />
-       
-    
+    <input ref={ref} className={classes.myInput} type="text" {...props}/> 
   )
 })
 // При использовании useRef, реакт ругается на созданые самими компоненты, для этого наш 

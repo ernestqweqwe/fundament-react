@@ -1,41 +1,54 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import './styles/App.css';
 import PostList from './components/PostList';
-import MyButton from './components/UI/button/MyButton';
-import MyInput from './components/UI/input/MyInput';
+import PostForm from './components/PostForm';
+import MySelect from './components/UI/select/MySelect';
+
+// nfn - снипет стрелочной функции
+// usf - useState
 
 function App() {
   const [posts, setPosts] = useState([
-    { id: 1, title: 'Javascript', body: 'Description' },
+    { id: 1, title: '', body: 'Description' },
     { id: 2, title: 'Javascript 2', body: 'Description' },
     { id: 3, title: 'Javascript 3', body: 'Description' },
   ]);
 
-  const [title, setTitle] = useState('');
-  const bodyInputRef = useRef();
+  const [selectedSort, setSelectedSort] = useState('');
 
-  const addNewPost = (e) => {
-    e.preventDefault();
-    console.log(title);
-    console.log(bodyInputRef.current.value);
+  const createPost = (newPost) => {
+    setPosts([...posts, newPost]);
+  };
+
+  const removePost = (post) => {
+    setPosts(posts.filter((p) => p.id !== post.id));
+  };
+
+  const sortPosts = (sort) => {
+    setSelectedSort(sort);
+    setPosts([...posts].sort((a, b) => a[sort].localeCompare(b[sort])));
   };
 
   return (
     <div className="App">
-      <form>
-        {/*управляемый компонент, двухсторонее связывание */}
-        <MyInput
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          type="text"
-          placeholder="название поста"
+      <PostForm create={createPost} />
+      <hr style={{ margin: '15px 0' }} />
+      <div>
+        <MySelect
+          value={selectedSort}
+          onChange={sortPosts}
+          defaultValue="Сортировка"
+          options={[
+            { value: 'title', name: 'По названию' },
+            { value: 'body', name: 'По описанию' },
+          ]}
         />
-        {/*Неуправляемый компонент, Не контролируемый */}
-
-        <MyInput ref={bodyInputRef} type="text" placeholder="описание поста" />
-        <MyButton onClick={addNewPost}>Создать пост</MyButton>
-      </form>
-      <PostList posts={posts} title="Посты про JS" />
+      </div>
+      {posts.length !== 0 ? (
+        <PostList remove={removePost} posts={posts} title="Посты про JS" />
+      ) : (
+        <h1 style={{ textAlign: 'center', marginTop: '60px' }}>Посты не были найдены</h1>
+      )}
     </div>
   );
 }
