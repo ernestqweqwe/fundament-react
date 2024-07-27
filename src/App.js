@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import './styles/App.css';
 import PostList from './components/PostList';
 import PostForm from './components/PostForm';
@@ -18,21 +18,17 @@ function App() {
   const [selectedSort, setSelectedSort] = useState(''); // По чем сортируем Заголовок(title) или Описание(body)
   const [searchQuery, setSearchQuery] = useState(''); // Состояние для поиска
 
-  function getSortedPost() {
-    console.log('ОТРАБОТАЛА ФУНКЦИЯ СОРТЕД ПОСТ')
+  const sortedPost = useMemo(() => {
+    console.log('ОТРАБОТАЛА ФУНКЦИЯ СОРТЕД ПОСТ');
     if (selectedSort) {
-      return [...posts].sort((a, b) => a[selectedSort].localeCompare(b[selectedSort])) // Механизм сортировки постов 
+      return [...posts].sort((a, b) => a[selectedSort].localeCompare(b[selectedSort])); // Механизм сортировки постов
     }
-    return posts
+    return posts;
 
-  } // т.к selectedSort по умолчанию эта пустая строка наша проверка не отработает и выдаст ошибку
-  // т.к функция localCompare вызывается у несуществуещего поля и мы получаем undefind
-  // для этого создается эта функция
-
-
-
-  const sortedPost = getSortedPost()
-
+    // т.к selectedSort по умолчанию эта пустая строка наша проверка не отработает и выдаст ошибку
+    // т.к функция localCompare вызывается у несуществуещего поля и мы получаем undefind
+    // для этого создается эта проверка
+  }, [selectedSort, posts]);
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
