@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import './styles/App.css';
 import PostList from './components/PostList';
 import PostForm from './components/PostForm';
 import PostFilter from './components/PostFilter';
 import MyModal from './components/UI/MyModal/MyModal';
 import MyButton from './components/UI/button/MyButton';
+import { usePosts } from './hooks/usePosts';
 
 // nfn - снипет стрелочной функции
 // usf - useState
@@ -18,25 +19,11 @@ function App() {
 
   const [filter, setFilter] = useState({ sort: '', query: '' });
   const [modal, setModal] = useState(false);
-
-  const sortedPosts = useMemo(() => {
-    if (filter.sort) {
-      return [...posts].sort((a, b) => a[filter.sort].localeCompare(b[filter.sort])); // Механизм сортировки постов
-    }
-    return posts;
-
-    // т.к selectedSort по умолчанию эта пустая строка наша проверка не отработает и выдаст ошибку
-    // т.к функция localCompare вызывается у несуществуещего поля и мы получаем undefind
-    // для этого создается эта проверка
-  }, [filter.sort, posts]);
-
-  const sortedAndSearchetPosts = useMemo(() => {
-    return sortedPosts.filter((post) => post.title.toLocaleLowerCase().includes(filter.query));
-  }, [filter.query, sortedPosts]);
+  const sortedAndSearchetPosts = usePosts(posts, filter.sort, filter.query);
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
-    setModal(false)
+    setModal(false);
   };
 
   const removePost = (post) => {
@@ -45,7 +32,7 @@ function App() {
 
   return (
     <div className="App">
-      <MyButton style={{marginTop:30}} onClick={()=>setModal(true)}>
+      <MyButton style={{ marginTop: 30 }} onClick={() => setModal(true)}>
         Добавить пост
       </MyButton>
       <MyModal visible={modal} setVisible={setModal}>
