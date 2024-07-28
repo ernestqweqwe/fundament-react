@@ -9,6 +9,8 @@ import { usePosts } from './hooks/usePosts';
 import PostService from './API/PostService';
 import Loader from './components/UI/Loader/Loader';
 import { useFetcing } from './hooks/useFetching';
+import { getPageCount, getPagesArray } from './utils/pages';
+import Pagination from './components/UI/pagination/Pagination';
 
 // nfn - снипет стрелочной функции
 // usf - useState
@@ -18,12 +20,16 @@ function App() {
   const [filter, setFilter] = useState({ sort: '', query: '' });
   const [modal, setModal] = useState(false);
   const sortedAndSearchetPosts = usePosts(posts, filter.sort, filter.query);
+  const [totalPages, setTotalPages] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
 
-  const [fetchPosts, isPostLoading, postError] = useFetcing(async () => {
-    const posts = await PostService.getAll();
-    setPosts(posts);
+  const [fetchPosts, isPostLoading, postError] = useFetcing(async (limit, page) => {
+    const response = await PostService.getAll(limit, page);
+    setPosts(response.data);
+    const totalCount = response.headers['x-total-count'];
+    setTotalPages(getPageCount(totalCount, limit));
   });
-
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
     setModal(false);
@@ -34,8 +40,13 @@ function App() {
   };
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(limit, page);
   }, []);
+
+  const changePage = (page) => {
+    setPage(page);
+    fetchPosts(limit, page);
+  };
 
   return (
     <div className="App">
@@ -55,6 +66,7 @@ function App() {
       ) : (
         <PostList remove={removePost} posts={sortedAndSearchetPosts} title="Посты про JS" />
       )}
+      {!isPostLoading && <Pagination page={page} changePage={changePage} totalPages={totalPages} />}
     </div>
   );
 }
