@@ -7,16 +7,17 @@ import MyModal from './components/UI/MyModal/MyModal';
 import MyButton from './components/UI/button/MyButton';
 import { usePosts } from './hooks/usePosts';
 import PostService from './API/PostService';
+import Loader from './components/UI/Loader/Loader';
 
 // nfn - снипет стрелочной функции
 // usf - useState
 
 function App() {
   const [posts, setPosts] = useState([]);
-
   const [filter, setFilter] = useState({ sort: '', query: '' });
   const [modal, setModal] = useState(false);
   const sortedAndSearchetPosts = usePosts(posts, filter.sort, filter.query);
+  const [isPostLoading, setIsPostLoading] = useState(false);
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
@@ -28,8 +29,10 @@ function App() {
   };
 
   async function fetchPosts() {
-    const posts = await PostService.getAll()
+    setIsPostLoading(true);
+    const posts = await PostService.getAll();
     setPosts(posts);
+    setIsPostLoading(false);
   }
 
   useEffect(() => {
@@ -46,7 +49,11 @@ function App() {
       </MyModal>
       <hr style={{ margin: '15px 0' }} />
       <PostFilter filter={filter} setFilter={setFilter} />
-      <PostList remove={removePost} posts={sortedAndSearchetPosts} title="Посты про JS" />
+      {isPostLoading ? (
+        <div style={{display:'flex', justifyContent:'center', marginTop:'180px'}}><Loader/></div>
+      ) : (
+        <PostList remove={removePost} posts={sortedAndSearchetPosts} title="Посты про JS" />
+      )}
     </div>
   );
 }
