@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export const useFetcing = (callback) => {
+export const useFetching = (callback) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -8,7 +8,6 @@ export const useFetcing = (callback) => {
     try {
       setIsLoading(true);
       await callback(...agrs);
-      console.log(...agrs)
     } catch (e) {
       setError(e.message);
     } finally {
