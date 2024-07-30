@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import MyModal from './../components/UI/MyModal/MyModal';
 import PostForm from './../components/PostForm';
@@ -7,8 +6,8 @@ import Pagination from './../components/UI/pagination/Pagination';
 import Loader from './../components/UI/Loader/Loader';
 import MyButton from '../components/UI/button/MyButton';
 import PostFilter from './../components/PostFilter';
-import {usePosts} from '../hooks/usePosts'
-import {useFetching} from '../hooks/useFetching'
+import { usePosts } from '../hooks/usePosts';
+import { useFetching } from '../hooks/useFetching';
 import { getPageCount } from '../utils/pages';
 import PostService from './../API/PostService';
 // nfn - снипет стрелочной функции
@@ -25,7 +24,7 @@ function Posts() {
 
   const [fetchPosts, isPostLoading, postError] = useFetching(async (limit, page) => {
     const response = await PostService.getAll(limit, page);
-    setPosts(response.data);
+    setPosts([...posts, ...response.data]);
     const totalCount = response.headers['x-total-count'];
     setTotalPages(getPageCount(totalCount, limit));
   });
@@ -40,11 +39,10 @@ function Posts() {
 
   useEffect(() => {
     fetchPosts(limit, page);
-  }, []);
+  }, [page]);
 
   const changePage = (page) => {
     setPage(page);
-    fetchPosts(limit, page);
   };
 
   return (
@@ -58,13 +56,13 @@ function Posts() {
       <hr style={{ margin: '15px 0' }} />
       <PostFilter filter={filter} setFilter={setFilter} />
       {postError && <h1>Произошла ошибка {postError}</h1>}
-      {isPostLoading ? (
+      {isPostLoading && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '180px' }}>
           <Loader />
         </div>
-      ) : (
-        <PostList remove={removePost} posts={sortedAndSearchetPosts} title="Посты про JS" />
       )}
+      <PostList remove={removePost} posts={sortedAndSearchetPosts} title="Посты про JS" />
+
       {!isPostLoading && <Pagination page={page} changePage={changePage} totalPages={totalPages} />}
     </div>
   );
